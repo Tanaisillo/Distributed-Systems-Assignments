@@ -30,20 +30,14 @@ func FailOnError(err error, msg string) {
 
 func (s *server) ProcessOrder(ctx context.Context, req *pb.BookstoreRequest) (*pb.BookstoreResponse, error) {
 
-	///////////// Aqui va la logica del servidor
-
-	// Simple order logic: Calculate the total price of all products
-	totalPrice := float32(0)
-	for _, product := range req.Products {
-		totalPrice += product.Price * float32(product.Quantity)
-	}
+	///////////// Aqui va la logica del servidor //////////////
 
 	//TENEMOS TODOS LOS ELEMENTOS. AHORA QUEREMOS:
 	//1. INSERTAR LA ORDEN EN MONGODB. ALMACENAMOS LA ORDEN ID PARA EL RETORNO
 
 	//ACCEDEMOS A LA COLECCION DE ORDERS
 	db := configs.GetDatabase()
-	collection := db.Collection("orders")
+	collection := db.Collection("orders") // Se crean las colecciones una ves declaradas
 	collection2 := db.Collection("products")
 
 	//DESERIALIZAMOS LA ORDEN A JSON STRUCT
@@ -74,7 +68,7 @@ func (s *server) ProcessOrder(ctx context.Context, req *pb.BookstoreRequest) (*p
 	for i := range products {
 		products[i].Quantity = 9999
 
-		//	 INSERTAMOS EL PRODUCTO EN LA COLECCION
+		//	 INSERTAMOS EL PRODUCTO EN LA COLECCION PARA EL STOCK
 		_, insertErr2 := collection2.InsertOne(context.TODO(), products[i])
 
 		if insertErr2 != nil {
@@ -106,6 +100,7 @@ func (s *server) ProcessOrder(ctx context.Context, req *pb.BookstoreRequest) (*p
 	routing_key3 := "colaNotificacion"
 	msgq.EnviarMensaje(routing_key3, s.rabbitMQChannel, NotificationMessage)
 
+	// RETORNA EL ID DEL PEDIDO EN LA RESPONSE AL CLIENTE
 	return &pb.BookstoreResponse{Message: orderID}, nil
 }
 
@@ -127,7 +122,7 @@ func main() {
 	err := configs.Connect(connection_string)
 	FailOnError(err, "Error al conectar a mongodb")
 
-	// Create a TCP listener on port 50051 (Puedes cambiar el puerto si quieres)
+	// Create a TCP listener on port 50051
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
