@@ -7,6 +7,8 @@ Tanay Gonzalez 201973005-3
 
 Consideraciones:
 
+** La version en gitlab no es la version final, considerar esta version como final
+
 ** Esta implementacion contempla una version local del programa sobre la tarea, vale decir, que es funcional mediante 5 terminales desde la misma maquina,
 la unica discrepancia se da en que no pudimos testear ni arreglar el codigo para su funcionamiento de forma distribuida, debido a los problemas tecnicos que
 presenta el labcomp el dia de la entraga (lo cual se atendio en el correo enviado), esto es, las conexiones que necesita rabbitmq y mongodb para poder acceder de una maquina a otra, aun asi, la funcionalidad del codigo se mantiene cumplida, y la implementacion distribuida bastaria realizar pequeños cambios.
