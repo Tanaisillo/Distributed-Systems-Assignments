@@ -29,9 +29,11 @@ func main() {
 	defer channel.Close()
 	defer connection.Close()
 
-	fmt.Println("conectado a rabbitmq")
-
-	queue := msgq.DeclararCola(channel, "colaNotificacion")
+	
+	fmt.Println("Conectado a rabbitmq")
+	
+	// default exchange
+	queue := msgq.DeclararCola(channel, "colaNotificacion") // match con el nombre
 
 	msgs, err := channel.Consume(
 		queue.Name, //nombre de la cola
@@ -61,10 +63,10 @@ func main() {
 			err := json.Unmarshal(d.Body, &mensaje)
 			FailOnError(err, "Error al convertir mensaje")
 
-			//logica de notificacion
+			// Defines the payload for the mail
 			payload := models.Payload{
 				OrderID:  mensaje.OrderID,
-				GroupID:  "T9q!6B3j#5",
+				GroupID:  "T9q!6B3j#5", // contraseña de la primera maquina
 				Products: mensaje.Order.Products,
 				Customer: mensaje.Order.Customer,
 			}
@@ -74,7 +76,7 @@ func main() {
 			fmt.Println("Payload:", string(jsonData))
 
 			// Make the HTTP request
-			url := "https://sjwc0tz9e4.execute-api.us-east-2.amazonaws.com/Prod"
+			url := "https://sjwc0tz9e4.execute-api.us-east-2.amazonaws.com/Prod" // url
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 			FailOnError(err, "Error creando la solicitud HTTP")
 
@@ -93,7 +95,6 @@ func main() {
 			_, _ = buf.ReadFrom(resp.Body)
 			fmt.Println("Response Body:", buf.String())
 			resp.Body.Close()
-
 		}
 	}()
 
