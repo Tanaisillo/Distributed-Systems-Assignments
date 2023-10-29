@@ -16,6 +16,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// DEFAULT ERROR
 func FailOnError(err error, msg string) {
 	if err != nil {
 		log.Panicf("%s: %s", msg, err)
@@ -43,9 +44,10 @@ func main() {
 	defer channel.Close()
 	defer connection.Close()
 
-	fmt.Println("conectado a rabbitmq")
+	fmt.Println("Conectado a rabbitmq")
 
-	queue := msgq.DeclararCola(channel, "colaDespacho")
+	// exchange default
+	queue := msgq.DeclararCola(channel, "colaDespacho") // Hace el match con el nombre de la cola
 
 	msgs, err := channel.Consume(
 		queue.Name, //nombre de la cola
@@ -78,10 +80,11 @@ func main() {
 			// Extract relevant information
 			orderID := mensaje.OrderID
 			customer := mensaje.Customer
-
+			
+			// Declares the delivery varible
 			deliveryInfo := models.Delivery{}
 
-			// Fill in the information
+			// Fill in the information extracted from the quee
 			deliveryInfo.ShippingAddress.Name = customer.Name
 			deliveryInfo.ShippingAddress.Lastname = customer.Lastname
 			deliveryInfo.ShippingAddress.Address1 = customer.Location.Address1
@@ -91,15 +94,10 @@ func main() {
 			deliveryInfo.ShippingAddress.PostalCode = customer.Location.PostalCode
 			deliveryInfo.ShippingAddress.Country = customer.Location.Country
 			deliveryInfo.ShippingAddress.Phone = customer.Phone
-			deliveryInfo.ShippingMethod = "USPS" //estas van harcodeadas como en el ejemplo
+			deliveryInfo.ShippingMethod = "USPS" //estos datos van harcodeados como en el ejemplo
 			deliveryInfo.TrackingNumber = "12345678901234567890"
 
-			fmt.Println(deliveryInfo)
-			// Convert the deliveryInfo to a BSON document
-			// deliveryBSON, err := bson.Marshal(deliveryInfo)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
+			fmt.Println(deliveryInfo) //Prints the delivery info for debugging
 
 			// Update the existing document with the new deliveries information
 			objID := configs.ConvertStringToObjectId(orderID)
