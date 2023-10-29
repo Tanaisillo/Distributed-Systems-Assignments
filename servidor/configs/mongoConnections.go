@@ -14,7 +14,6 @@ import (
 var db *mongo.Database
 
 // Connect establishes a connection to the MongoDB database
-
 func failOnError(err error, msg string) {
 	if err != nil {
 		log.Panicf("%s: %s", msg, err)
@@ -23,6 +22,7 @@ func failOnError(err error, msg string) {
 
 func Connect(uri string) error {
 
+	// Connection to mongo
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	failOnError(err, "Error al conectar a mongodb")
@@ -31,17 +31,17 @@ func Connect(uri string) error {
 	err = client.Ping(context.TODO(), nil)
 	failOnError(err, "Error al hacer ping a mongodb")
 
+	// Gets the db name
 	dbName := ExtractDatabaseName(uri)
 
-	//set the db variable to the extracted database
+	// Set the db variable to the extracted database
 	db = client.Database(dbName)
 
 	return error(nil)
 }
 
 // CreateCollection creates a new collection in the database
-// This is not used
-
+// This is not used (collections are created when declared)
 func Create_Collection(name string) {
 	createCollectionOptions := options.CreateCollection()
 	if err := db.CreateCollection(context.TODO(), name, createCollectionOptions); err != nil {
@@ -52,7 +52,6 @@ func Create_Collection(name string) {
 }
 
 // GetDatabase returns the MongoDB database instance
-
 func GetDatabase() *mongo.Database {
 	return db
 }
@@ -66,11 +65,13 @@ func ExtractDatabaseName(uri string) string {
 	return databaseName
 }
 
+// Converts a primitive object from mongodb to a string type
 func ExtractObjectIdAsString(result *mongo.InsertOneResult) string {
 	orderID := result.InsertedID.(primitive.ObjectID).Hex()
 	return orderID
 }
 
+// Converts the string type into an object
 func ConvertStringToObjectId(id string) primitive.ObjectID {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
