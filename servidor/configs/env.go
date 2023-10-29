@@ -7,11 +7,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// connection string to the MongoDB database
+// Connection string to the MongoDB database
 var connection_string string
 
 // GetConnection_String returns the connection string to the MongoDB database from env file
-
 func GetConnection_String() string {
 	return connection_string
 }
