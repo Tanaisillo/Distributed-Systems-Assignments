@@ -43,9 +43,10 @@ func main() {
 	defer channel.Close()
 	defer connection.Close()
 
-	fmt.Println("conectado a rabbitmq")
+	fmt.Println("Conectado a rabbitmq")
 
-	queue := msgq.DeclararCola(channel, "colaInventario")
+	// default exchange
+	queue := msgq.DeclararCola(channel, "colaInventario") // match con el nombre de la cola
 
 	msgs, err := channel.Consume(
 		queue.Name, //nombre de la cola
@@ -78,14 +79,16 @@ func main() {
 				continue
 			}
 
+			// Goes through each product
 			for _, productToUpdate := range mensaje.Products {
 
-				fmt.Printf("Product to update: %s", productToUpdate.Title)
+				fmt.Printf("Product to update: %s", productToUpdate.Title) //prints each product for debugging
 				// Subtract the quantity from the stock in the MongoDB collection
 				update := bson.D{{Key: "$inc", Value: bson.D{{Key: "quantity", Value: -productToUpdate.Quantity}}}}
 
 				filter := bson.D{{Key: "title", Value: productToUpdate.Title}} // Assuming "title" is a unique identifier
 
+				// Changes the amount of stock in the collection products
 				_, err = collection2.UpdateOne(context.Background(), filter, update)
 				if err != nil {
 					log.Printf("Error updating document: %v", err)
