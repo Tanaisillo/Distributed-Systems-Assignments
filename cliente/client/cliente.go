@@ -41,6 +41,6 @@ func main() {
 		log.Fatalf("failed to call ProcessOrder: %v", err)
 	}
 
-	// Print the server's response
+	// Print the server's response (The id of the order)
 	fmt.Printf("El ID de Orden es: %s\n", response.Message)
 }
