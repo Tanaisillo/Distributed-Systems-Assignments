@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package bookstore;
+
+//define the messages
+message Product { //product
+    string title = 1;
+    string author = 2;
+    string genre = 3;
+    int32 pages = 4;
+    string publication = 5;
+    int32 quantity = 6;
+    float price = 7;
+}
+
+message Location { //Location for the customer
+    string address1 = 1;
+    string address2 = 2;
+    string city = 3;
+    string state = 4;
+    string postalCode = 5;
+    string country = 6;
+}
+
+message Customer { //customer data
+    string name = 1;
+    string lastname = 2;
+    string email = 3;
+    Location location = 4;
+    string phone = 5;
+}
+
+message BookstoreRequest { //request to server
+    repeated Product products = 1; //repeated to send multiple products
+    Customer customer = 2; //customer data (assuming is only one per json)
+}
+
+message BookstoreResponse { //Simple response from the server for the id
+    string message = 1;
+}
+
+service BookstoreService { //service
+    rpc ProcessOrder(BookstoreRequest) returns (BookstoreResponse);
+}
