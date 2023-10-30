@@ -1,46 +1,55 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"log"
-	"os"
+    "context"
+    "encoding/json"
+    "fmt"
+    "log"
+    "os"
 
-	pb "cliente/proto"
+    pb "cliente/proto"
 
-	"google.golang.org/grpc"
+    "google.golang.org/grpc"
 )
 
 func main() {
-	// Read JSON data from a file
-	jsonData, err := os.ReadFile("products.json") //json name
-	if err != nil {
-		log.Fatalf("failed to read JSON file: %v", err)
-	}
+    // Check if a filename argument is provided
+    if len(os.Args) != 2 {
+        fmt.Println("Usage: cliente <filename.json>")
+        os.Exit(1)
+    }
 
-	// Unmarshal JSON data into the BookstoreRequest message
-	var request pb.BookstoreRequest
-	if err := json.Unmarshal(jsonData, &request); err != nil {
-		log.Fatalf("failed to unmarshal JSON: %v", err)
-	}
+    // Get the filename from the command-line argument
+    filename := os.Args[1]
 
-	// Connect to the gRPC server
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("failed to connect: %v", err)
-	}
-	defer conn.Close()
+    // Read JSON data from the specified file
+    jsonData, err := os.ReadFile(filename)
+    if err != nil {
+        log.Fatalf("failed to read JSON file: %v", err)
+    }
 
-	// Create a gRPC client
-	client := pb.NewBookstoreServiceClient(conn)
+    // Unmarshal JSON data into the BookstoreRequest message
+    var request pb.BookstoreRequest
+    if err := json.Unmarshal(jsonData, &request); err != nil {
+        log.Fatalf("failed to unmarshal JSON: %v", err)
+    }
 
-	// Send the request to the server
-	response, err := client.ProcessOrder(context.Background(), &request)
-	if err != nil {
-		log.Fatalf("failed to call ProcessOrder: %v", err)
-	}
+    // Connect to the gRPC server
+    conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+    if err != nil {
+        log.Fatalf("failed to connect: %v", err)
+    }
+    defer conn.Close()
 
-	// Print the server's response (The id of the order)
-	fmt.Printf("El ID de Orden es: %s\n", response.Message)
+    // Create a gRPC client
+    client := pb.NewBookstoreServiceClient(conn)
+
+    // Send the request to the server
+    response, err := client.ProcessOrder(context.Background(), &request)
+    if err != nil {
+        log.Fatalf("failed to call ProcessOrder: %v", err)
+    }
+
+    // Print the server's response
+    fmt.Printf("El ID de Orden es: %s\n", response.Message)
 }
